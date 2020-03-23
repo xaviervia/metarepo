@@ -17,6 +17,7 @@
     "packages/fixdeps",
     "packages/graphiq",
     "packages/import-wasm",
+    "packages/iva",
     "packages/lada/*",
     "packages/makethen",
     "packages/math-playground",
