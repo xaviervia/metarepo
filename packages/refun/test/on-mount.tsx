@@ -5,16 +5,16 @@ import { createSpy, getSpyCalls } from 'spyfn'
 import { component, startWithType, onMount } from '../src'
 
 test('onMount: sync function', (t) => {
-  const unmountSpy = createSpy(() => null)
-  const mountSpy = createSpy(() => unmountSpy) as () => void
-  const compSpy = createSpy(() => null)
-  const getNumRenders = () => getSpyCalls(compSpy).length
+  const onUnmountSpy = createSpy(() => null)
+  const onMountSpy = createSpy(() => onUnmountSpy) as () => void
+  const componentSpy = createSpy(() => null)
+  const getNumRenders = () => getSpyCalls(componentSpy).length
   const MyComp = component(
     startWithType<{ foo: string }>(),
-    onMount(mountSpy)
-  )(compSpy)
+    onMount(onMountSpy)
+  )(componentSpy)
 
-  let testRenderer!: ReactTestRenderer
+  let testRenderer: ReactTestRenderer
 
   /* Mount */
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -25,23 +25,23 @@ test('onMount: sync function', (t) => {
   })
 
   t.deepEquals(
-    getSpyCalls(compSpy),
+    getSpyCalls(componentSpy),
     [
-      [{ foo: 'foo' }],
+      [{ foo: 'foo' }], // Mount
     ],
     'Mount: should pass props'
   )
 
   t.deepEquals(
-    getSpyCalls(mountSpy),
+    getSpyCalls(onMountSpy),
     [
-      [{ foo: 'foo' }],
+      [{ foo: 'foo' }], // Mount
     ],
     'Mount: should call mount'
   )
 
   t.deepEquals(
-    getSpyCalls(unmountSpy),
+    getSpyCalls(onUnmountSpy),
     [],
     'Mount: should not call unmount'
   )
@@ -55,24 +55,24 @@ test('onMount: sync function', (t) => {
   })
 
   t.deepEquals(
-    getSpyCalls(compSpy),
+    getSpyCalls(componentSpy),
     [
-      [{ foo: 'foo' }],
-      [{ foo: 'bar' }],
+      [{ foo: 'foo' }], // Mount
+      [{ foo: 'bar' }], // Update
     ],
     'Update: should pass props'
   )
 
   t.deepEquals(
-    getSpyCalls(mountSpy),
+    getSpyCalls(onMountSpy),
     [
-      [{ foo: 'foo' }],
+      [{ foo: 'foo' }], // Mount
     ],
     'Update: should not call mount anymore'
   )
 
   t.deepEquals(
-    getSpyCalls(unmountSpy),
+    getSpyCalls(onUnmountSpy),
     [],
     'Update: should not call unmount'
   )
@@ -84,15 +84,15 @@ test('onMount: sync function', (t) => {
   })
 
   t.deepEquals(
-    getSpyCalls(mountSpy),
+    getSpyCalls(onMountSpy),
     [
-      [{ foo: 'foo' }],
+      [{ foo: 'foo' }], // Mount
     ],
     'Unmount: should not call mount anymore'
   )
 
   t.deepEquals(
-    getSpyCalls(unmountSpy),
+    getSpyCalls(onUnmountSpy),
     [],
     'Unmount: should not call unmount'
   )
@@ -107,15 +107,15 @@ test('onMount: sync function', (t) => {
 })
 
 test('onMount: async function', (t) => {
-  const mountSpy = createSpy(async () => {})
-  const compSpy = createSpy(() => null)
-  const getNumRenders = () => getSpyCalls(compSpy).length
+  const onMountSpy = createSpy(async () => {})
+  const componentSpy = createSpy(() => null)
+  const getNumRenders = () => getSpyCalls(componentSpy).length
   const MyComp = component(
     startWithType<{ foo: string }>(),
-    onMount(mountSpy)
-  )(compSpy)
+    onMount(onMountSpy)
+  )(componentSpy)
 
-  let testRenderer!: ReactTestRenderer
+  let testRenderer: ReactTestRenderer
 
   /* Mount */
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -126,17 +126,17 @@ test('onMount: async function', (t) => {
   })
 
   t.deepEquals(
-    getSpyCalls(compSpy),
+    getSpyCalls(componentSpy),
     [
-      [{ foo: 'foo' }],
+      [{ foo: 'foo' }], // Mount
     ],
     'Mount: should pass props'
   )
 
   t.deepEquals(
-    getSpyCalls(mountSpy),
+    getSpyCalls(onMountSpy),
     [
-      [{ foo: 'foo' }],
+      [{ foo: 'foo' }], // Mount
     ],
     'Mount: should call mount'
   )
@@ -150,18 +150,18 @@ test('onMount: async function', (t) => {
   })
 
   t.deepEquals(
-    getSpyCalls(compSpy),
+    getSpyCalls(componentSpy),
     [
-      [{ foo: 'foo' }],
-      [{ foo: 'bar' }],
+      [{ foo: 'foo' }], // Mount
+      [{ foo: 'bar' }], // Update
     ],
     'Update: should pass props'
   )
 
   t.deepEquals(
-    getSpyCalls(mountSpy),
+    getSpyCalls(onMountSpy),
     [
-      [{ foo: 'foo' }],
+      [{ foo: 'foo' }], // Mount
     ],
     'Update: should not call mount anymore'
   )
@@ -173,9 +173,9 @@ test('onMount: async function', (t) => {
   })
 
   t.deepEquals(
-    getSpyCalls(mountSpy),
+    getSpyCalls(onMountSpy),
     [
-      [{ foo: 'foo' }],
+      [{ foo: 'foo' }], // Mount
     ],
     'Unmount: should not call mount anymore'
   )

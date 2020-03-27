@@ -1,17 +1,17 @@
 import { useRef, useEffect } from 'react'
 import { EMPTY_ARRAY, EMPTY_OBJECT, NOOP } from 'tsfn'
 
-export const onMountUnmount = <P extends {}> (onMountFn: (props: P) => () => void) => (props: P): P => {
+export const onMountUnmount = <P extends {}> (onMountUnmountFn: (props: P) => () => void) => (props: P): P => {
   const propsRef = useRef<P>(EMPTY_OBJECT)
-  const onMountRef = useRef<() => void>(NOOP)
+  const onMountUnmountRef = useRef<() => void>(NOOP)
 
-  if (onMountRef.current === NOOP) {
-    onMountRef.current = () => onMountFn(propsRef.current)
+  if (onMountUnmountRef.current === NOOP) {
+    onMountUnmountRef.current = () => onMountUnmountFn(propsRef.current)
   }
 
   propsRef.current = props
 
-  useEffect(onMountRef.current, EMPTY_ARRAY)
+  useEffect(onMountUnmountRef.current, EMPTY_ARRAY)
 
   return props
 }

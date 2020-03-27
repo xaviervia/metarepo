@@ -7,16 +7,16 @@ import { component, startWithType, onMountUnmount } from '../src'
 test('onMountUnmount', (t) => {
   const unmountSpy = createSpy(() => null)
   const mountSpy = createSpy(() => unmountSpy)
-  const compSpy = createSpy(() => null)
-  const getNumRenders = () => getSpyCalls(compSpy).length
+  const componentSpy = createSpy(() => null)
+  const getNumRenders = () => getSpyCalls(componentSpy).length
   const MyComp = component(
     startWithType<{ foo: string }>(),
     onMountUnmount(mountSpy)
-  )(compSpy)
+  )(componentSpy)
+
+  let testRenderer: ReactTestRenderer
 
   /* Mount */
-  let testRenderer!: ReactTestRenderer
-
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   act(() => {
     testRenderer = TestRenderer.create(
@@ -25,9 +25,9 @@ test('onMountUnmount', (t) => {
   })
 
   t.deepEquals(
-    getSpyCalls(compSpy),
+    getSpyCalls(componentSpy),
     [
-      [{ foo: 'foo' }],
+      [{ foo: 'foo' }], // Mount
     ],
     'Mount: should pass props'
   )
@@ -35,7 +35,7 @@ test('onMountUnmount', (t) => {
   t.deepEquals(
     getSpyCalls(mountSpy),
     [
-      [{ foo: 'foo' }],
+      [{ foo: 'foo' }], // Mount
     ],
     'Mount: should call mount'
   )
@@ -55,10 +55,10 @@ test('onMountUnmount', (t) => {
   })
 
   t.deepEquals(
-    getSpyCalls(compSpy),
+    getSpyCalls(componentSpy),
     [
-      [{ foo: 'foo' }],
-      [{ foo: 'bar' }],
+      [{ foo: 'foo' }], // Mount
+      [{ foo: 'bar' }], // Update
     ],
     'Update: should pass props'
   )
@@ -66,7 +66,7 @@ test('onMountUnmount', (t) => {
   t.deepEquals(
     getSpyCalls(mountSpy),
     [
-      [{ foo: 'foo' }],
+      [{ foo: 'foo' }], // Mount
     ],
     'Update: should not call mount anymore'
   )
@@ -86,7 +86,7 @@ test('onMountUnmount', (t) => {
   t.deepEquals(
     getSpyCalls(mountSpy),
     [
-      [{ foo: 'foo' }],
+      [{ foo: 'foo' }], // Mount
     ],
     'Unmount: should not call mount anymore'
   )

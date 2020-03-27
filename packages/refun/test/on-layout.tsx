@@ -2,15 +2,15 @@ import React from 'react'
 import TestRenderer, { act, ReactTestRenderer } from 'react-test-renderer'
 import test from 'tape'
 import { createSpy, getSpyCalls } from 'spyfn'
-import { component, startWithType, onUpdate } from '../src'
+import { component, startWithType, onLayout } from '../src'
 
-test('onUpdate: sync function, empty watch keys', (t) => {
-  const onUpdateSpy = createSpy(() => {})
+test('onLayout: sync function, empty watch keys', (t) => {
+  const onLayoutSpy = createSpy(() => {})
   const componentSpy = createSpy(() => null)
   const getNumRenders = () => getSpyCalls(componentSpy).length
   const MyComp = component(
     startWithType<{ foo: string }>(),
-    onUpdate(onUpdateSpy, [])
+    onLayout(onLayoutSpy, [])
   )(componentSpy)
 
   let testRenderer: ReactTestRenderer
@@ -32,9 +32,11 @@ test('onUpdate: sync function, empty watch keys', (t) => {
   )
 
   t.deepEquals(
-    getSpyCalls(onUpdateSpy),
-    [],
-    'Mount: should not call update'
+    getSpyCalls(onLayoutSpy),
+    [
+      [{ foo: 'foo' }], // Mount
+    ],
+    'Mount: should call onLayout'
   )
 
   /* Update */
@@ -55,11 +57,11 @@ test('onUpdate: sync function, empty watch keys', (t) => {
   )
 
   t.deepEquals(
-    getSpyCalls(onUpdateSpy),
+    getSpyCalls(onLayoutSpy),
     [
-      [{ foo: 'bar' }], // Update
+      [{ foo: 'foo' }], // Mount
     ],
-    'Update: should not call update if array was empty'
+    'Update: should not call onLayout if array was empty'
   )
 
   /* Unmount */
@@ -69,11 +71,11 @@ test('onUpdate: sync function, empty watch keys', (t) => {
   })
 
   t.deepEquals(
-    getSpyCalls(onUpdateSpy),
+    getSpyCalls(onLayoutSpy),
     [
-      [{ foo: 'bar' }], // Update
+      [{ foo: 'foo' }], // Mount
     ],
-    'Unmount: should not call update'
+    'Unmount: should not call onLayout'
   )
 
   t.equals(
@@ -85,13 +87,13 @@ test('onUpdate: sync function, empty watch keys', (t) => {
   t.end()
 })
 
-test('onUpdate: sync function, watch keys', (t) => {
-  const onUpdateSpy = createSpy(() => {})
+test('onLayout: sync function, watch keys', (t) => {
+  const updateSpy = createSpy(() => {})
   const componentSpy = createSpy(() => null)
   const getNumRenders = () => getSpyCalls(componentSpy).length
   const MyComp = component(
     startWithType<{ foo: string, bar: string }>(),
-    onUpdate(onUpdateSpy, ['foo'])
+    onLayout(updateSpy, ['foo'])
   )(componentSpy)
 
   let testRenderer: ReactTestRenderer
@@ -116,9 +118,11 @@ test('onUpdate: sync function, watch keys', (t) => {
   )
 
   t.deepEquals(
-    getSpyCalls(onUpdateSpy),
-    [],
-    'Mount: should not call update'
+    getSpyCalls(updateSpy),
+    [
+      [{ foo: 'foo', bar: 'bar' }], // Mount
+    ],
+    'Mount: should call onLayout'
   )
 
   /* Update not watched prop */
@@ -142,8 +146,10 @@ test('onUpdate: sync function, watch keys', (t) => {
   )
 
   t.deepEquals(
-    getSpyCalls(onUpdateSpy),
-    [],
+    getSpyCalls(updateSpy),
+    [
+      [{ foo: 'foo', bar: 'bar' }], // Mount
+    ],
     'Update not watched prop: should not call update if changed props were not watched'
   )
 
@@ -169,8 +175,9 @@ test('onUpdate: sync function, watch keys', (t) => {
   )
 
   t.deepEquals(
-    getSpyCalls(onUpdateSpy),
+    getSpyCalls(updateSpy),
     [
+      [{ foo: 'foo', bar: 'bar' }], // Mount
       [{ foo: 'bar', bar: 'baz' }], // Update watched prop
     ],
     'Update watched prop: should call update if changed props were watched'
@@ -183,11 +190,12 @@ test('onUpdate: sync function, watch keys', (t) => {
   })
 
   t.deepEquals(
-    getSpyCalls(onUpdateSpy),
+    getSpyCalls(updateSpy),
     [
+      [{ foo: 'foo', bar: 'bar' }], // Mount
       [{ foo: 'bar', bar: 'baz' }], // Update watched prop
     ],
-    'Unmount: should not call update'
+    'Unmount: should not call onLayout'
   )
 
   t.equals(
@@ -199,13 +207,13 @@ test('onUpdate: sync function, watch keys', (t) => {
   t.end()
 })
 
-test('onUpdate: async function, empty watch keys', (t) => {
-  const onUpdateSpy = createSpy(async () => {})
+test('onLayout: async function, empty watch keys', (t) => {
+  const updateSpy = createSpy(async () => {})
   const componentSpy = createSpy(() => null)
   const getNumRenders = () => getSpyCalls(componentSpy).length
   const MyComp = component(
     startWithType<{ foo: string }>(),
-    onUpdate(onUpdateSpy, [])
+    onLayout(updateSpy, [])
   )(componentSpy)
 
   let testRenderer: ReactTestRenderer
@@ -229,9 +237,11 @@ test('onUpdate: async function, empty watch keys', (t) => {
   )
 
   t.deepEquals(
-    getSpyCalls(onUpdateSpy),
-    [],
-    'Mount: should not call update'
+    getSpyCalls(updateSpy),
+    [
+      [{ foo: 'foo' }], // Mount
+    ],
+    'Mount: should call onLayout'
   )
 
   /* Update */
@@ -252,11 +262,11 @@ test('onUpdate: async function, empty watch keys', (t) => {
   )
 
   t.deepEquals(
-    getSpyCalls(onUpdateSpy),
+    getSpyCalls(updateSpy),
     [
-      [{ foo: 'bar' }], // Update
+      [{ foo: 'foo' }], // Mount
     ],
-    'Update: should call update if array was empty'
+    'Update: should not call update if array was empty'
   )
 
   /* Unmount */
@@ -266,11 +276,11 @@ test('onUpdate: async function, empty watch keys', (t) => {
   })
 
   t.deepEquals(
-    getSpyCalls(onUpdateSpy),
+    getSpyCalls(updateSpy),
     [
-      [{ foo: 'bar' }], // Update
+      [{ foo: 'foo' }], // Mount
     ],
-    'Unmount: should not call update'
+    'Unmount: should not call onLayout'
   )
 
   t.equals(
@@ -282,13 +292,13 @@ test('onUpdate: async function, empty watch keys', (t) => {
   t.end()
 })
 
-test('onUpdate: async function, watch keys', (t) => {
-  const onUpdateSpy = createSpy(async () => {})
+test('onLayout: async function, watch keys', (t) => {
+  const updateSpy = createSpy(async () => {})
   const componentSpy = createSpy(() => null)
   const getNumRenders = () => getSpyCalls(componentSpy).length
   const MyComp = component(
     startWithType<{ foo: string, bar: string }>(),
-    onUpdate(onUpdateSpy, ['foo'])
+    onLayout(updateSpy, ['foo'])
   )(componentSpy)
 
   let testRenderer: ReactTestRenderer
@@ -313,9 +323,11 @@ test('onUpdate: async function, watch keys', (t) => {
   )
 
   t.deepEquals(
-    getSpyCalls(onUpdateSpy),
-    [],
-    'Mount: should not call update'
+    getSpyCalls(updateSpy),
+    [
+      [{ foo: 'foo', bar: 'bar' }], // Mount
+    ],
+    'Mount: should not call onLayout'
   )
 
   /* Update not watched prop */
@@ -336,8 +348,10 @@ test('onUpdate: async function, watch keys', (t) => {
   )
 
   t.deepEquals(
-    getSpyCalls(onUpdateSpy),
-    [],
+    getSpyCalls(updateSpy),
+    [
+      [{ foo: 'foo', bar: 'bar' }], // Mount
+    ],
     'Update not watched prop: should not call update if changed props were not watched'
   )
 
@@ -360,8 +374,9 @@ test('onUpdate: async function, watch keys', (t) => {
   )
 
   t.deepEquals(
-    getSpyCalls(onUpdateSpy),
+    getSpyCalls(updateSpy),
     [
+      [{ foo: 'foo', bar: 'bar' }], // Mount
       [{ foo: 'bar', bar: 'baz' }], // Update watched prop
     ],
     'Update watched prop: should call update if changed props were watched'
@@ -374,11 +389,12 @@ test('onUpdate: async function, watch keys', (t) => {
   })
 
   t.deepEquals(
-    getSpyCalls(onUpdateSpy),
+    getSpyCalls(updateSpy),
     [
+      [{ foo: 'foo', bar: 'bar' }], // Mount
       [{ foo: 'bar', bar: 'baz' }], // Update watched prop
     ],
-    'Unmount: should not call update'
+    'Unmount: should not call onLayout'
   )
 
   t.equals(
