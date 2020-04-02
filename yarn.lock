@@ -11449,10 +11449,10 @@ react-native-view-shot@^3.0.2, react-native-view-shot@^3.1.1:
   resolved "https://registry.yarnpkg.com/react-native-view-shot/-/react-native-view-shot-3.1.2.tgz#8c8e84c67a4bc8b603e697dbbd59dbc9b4f84825"
   integrity sha512-9u9fPtp6a52UMoZ/UCPrCjKZk8tnkI9To0Eh6yYnLKFEGkRZ7Chm6DqwDJbYJHeZrheCCopaD5oEOnRqhF4L2Q==
 
-react-native-webview@^8.0.3:
-  version "8.2.1"
-  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-8.2.1.tgz#23f9e156a3361fee316d54b60e64da1a27f9f73b"
-  integrity sha512-A2+JTOPloKHrBkKtJVEaT1jKeM4Lv+qx9e6+w/GISVkCMQj8WhBsx7YTvqi0jj0m3dxk7gkrtwVtUDaS7xK/ug==
+react-native-webview@^9.0.0:
+  version "9.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-9.0.2.tgz#5a9920261758e1ced129b6def9cf657d2c352194"
+  integrity sha512-HnQ0+8jt3556QocsYTtmG3Y8eAG88GzmBodDT0PTz4TuLzPJukubj41OFkP7hytZlSdXIxyoV9A06GruyxXeLQ==
   dependencies:
     escape-string-regexp "2.0.0"
     invariant "2.2.4"
