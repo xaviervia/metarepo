@@ -11,7 +11,7 @@ A collection of React Hook-enabled functions that compose harmoniously with each
 
 ## Usage example (with TypeScript)
 
-```ts
+```tsx
 import React from 'react'
 import {
   component,
@@ -114,19 +114,22 @@ Several things to note:
 - [mapKeyboardFocused](#mapKeyboardFocused)
 - [mapPressed](#mapPressed)
 - [mapProps](#mapProps)
-- [mapReducer](#mapReducer)
-- [mapRefLayout](#mapRefLayout)
 - [mapRef](#mapRef)
 - [mapSafeRequestAnimationFrame](#mapSafeRequestAnimationFrame)
 - [mapSafeTimeout](#mapSafeTimeout)
 - [mapState](#mapState)
+- [mapStateRef](#mapStateRef)
 - [mapThrottledHandlerTimeout](#mapThrottledHandlerTimeout)
 - [mapThrottledHandlerAnimationFrame](#mapThrottledHandlerAnimationFrame)
 - [mapThrottledHandlerFactory](#mapThrottledHandlerFactory)
-- [mapWithAsyncProps](#mapWithAsyncProps)
 - [mapWithProps](#mapWithProps)
 - [mapWithPropsMemo](#mapWithPropsMemo)
+- [onChange](#onChange)
+- [onLayout](#onLayout)
 - [onMount](#onMount)
+- [onMountUnmount](#onMountUnmount)
+- [onUnmount](#onUnmount)
+- [onUpdate](#onUpdate)
 - [startWithType](#startWithType)
 - [StoreContextFactory](#StoreContextFactory)
 
@@ -152,32 +155,21 @@ import AComplexHeader from './AComplexHeader'
 import AnExpensiveToComputeSidebar from './AnExpensiveToComputeSidebar'
 
 type TCounter = {
-  initialCount: number,
+  initialCount?: number,
 }
 
 export default pureComponent(
   startWithType<TCounter>(),
-  mapReducer(
-    (state, action) => {
-      switch (action.type) {
-        case 'ADD':
-          return {
-            counter: state.counter + 1
-          }
-
-        default:
-          return state
-      }
-    },
-    ({ initialCounter }) => ({
-      counter: initialCounter
-    })
-  )
+  mapDefaultProps({
+    initialCount: 0
+  }),
+  mapState('counter', 'setCounter', ({ initialCount }) => initialCount, ['initialCount']),
+  mapHandlers
 )(({ counter, dispatch }) = (
   <main>
     <AComplexHeader />
     <AnExpensiveToComputeSidebar />
-    <button>
+    <button onClick>
       Add
     </button>
 
@@ -242,7 +234,7 @@ This function allows you to defer the execution of a handler for a grace period 
 
 Why you ask? Imagine for example that there is a button in the UI in which a user might be tempted to repeatedly click to make sure an action happens, but it doing so they will repeatedly trigger an expensive operation that will freeze the application. To avoid this, you could debounce the `onClick` handler for some milliseconds and make sure only the last call will be acted upon.
 
-The difference between debouncing and throttling (available in [`mapThrottledHandlerTimeout`](#mapThrottledHandlerTimeout)) is that successive calls to a debounced handler will restart the timeout each time, while throttled calls will be executed once the initially set timeout it reached, using the last arguments. Following the FRP convention, this is how debouncing could be represented:
+The difference between debouncing and throttling (available in [`mapThrottledHandlerTimeout`](#mapThrottledHandlerTimeout)) is that successive calls to a debounced handler will restart the timeout each time, while throttled calls will be executed once the initially set timeout it reached, using the latest arguments. Following the FRP convention, this is how debouncing could be represented:
 
 ```
 debouncing in 3 seconds
@@ -1183,6 +1175,8 @@ export default component(
 ))
 ```
 
+[📺 Check out live demo](https://codesandbox.io/s/refun-onchange-lhvik)
+
 ## `onLayout`
 
 Signature:
@@ -1337,6 +1331,8 @@ export default component(
 ))
 ```
 
+[📺 Check out live demo](https://codesandbox.io/s/refun-onupdate-x8wln)
+
 ## `startWithType`
 
 Signature:
@@ -1393,7 +1389,7 @@ Signature:
 ```ts
 type StoreContextFactory<S> = (store: Redux.Store<S>) => {
   mapStoreState: <R>(mapStateToProps: (state: S) => R, stateKeysToWatch: string[]) => void,
-  mapStoreDispatch: (dispatchName: string) => void
+  mapStoreDispatch: (dispatchPropName: string) => void
 }
 ```
 
@@ -1447,9 +1443,7 @@ const initialState = {
 
 const store = createStore(reducer, initialState)
 
-const { StoreProvider, mapStoreState, mapStoreDispatch } = StoreContextFactory(
-  store
-)
+const { mapStoreState, mapStoreDispatch } = StoreContextFactory(store)
 
 const CounterDisplay = pureComponent(
   startWithType<{}>(),
@@ -1497,13 +1491,11 @@ const IncrementButton = component(
 ))
 
 export default () => (
-  <StoreProvider>
-    <div>
-      <CounterDisplay />
-      <ResetButton />
-      <IncrementButton />
-    </div>
-  </StoreProvider>
+  <div>
+    <CounterDisplay />
+    <ResetButton />
+    <IncrementButton />
+  </div>
 )
 ```
 
