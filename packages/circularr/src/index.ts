@@ -1,35 +1,34 @@
 export default class Circularr <T> {
   data: T[]
-
   index: number
+
+  static from<T>(source: T[]): Circularr<T> {
+    const arr = new Circularr<T>(source.length)
+
+    for (let i = 0; i < source.length; i++) {
+      arr.data[i] = source[i]
+    }
+
+    return arr
+  }
 
   constructor(length: number) {
     this.data = new Array<T>(length)
     this.index = 0
   }
 
-  static from <T>(source: T[]): Circularr<T> {
-    const c = new Circularr<T>(source.length)
-
-    for (let i = 0; i < source.length; ++i) {
-      c.data[i] = source[i]
+  *[Symbol.iterator]() {
+    for (let i = 0; i < this.data.length; i++) {
+      yield this.data[(i + this.index) % this.data.length]
     }
-
-    return c
   }
 
   get length(): number {
     return this.data.length
   }
 
-  *[Symbol.iterator]() {
-    for (let i = 0; i < this.data.length; ++i) {
-      yield this.data[(i + this.index) % this.data.length]
-    }
-  }
-
   fill(value: T): this {
-    for (let i = 0; i < this.data.length; ++i) {
+    for (let i = 0; i < this.data.length; i++) {
       this.data[i] = value
     }
 
@@ -64,37 +63,37 @@ export default class Circularr <T> {
     return returnValue
   }
 
-  slice(beginIndex?: number, endIndex?: number): Circularr<T> {
-    return Circularr.from([...this].slice(beginIndex, endIndex))
+  slice(startIndex?: number, endIndex?: number): Circularr<T> {
+    return Circularr.from(Array.from(this).slice(startIndex, endIndex))
   }
 
   trim(): Circularr<T> {
-    const data = [...this]
-    let beginIndex = 0
+    const data = Array.from(this)
+    let startIndex = 0
     let endIndex = data.length
 
-    for (let i = 0; i < data.length; ++i) {
-      if (data[i] !== undefined) {
+    for (let i = 0; i < data.length; i++) {
+      if (typeof data[i] !== 'undefined') {
         break
       }
 
-      ++beginIndex
+      startIndex++
     }
 
     for (let i = data.length - 1; i >= 0; --i) {
-      if (data[i] !== undefined) {
+      if (typeof data[i] !== 'undefined') {
         break
       }
 
-      --endIndex
+      endIndex--
     }
 
-    return Circularr.from(data.slice(beginIndex, endIndex))
+    return Circularr.from(data.slice(startIndex, endIndex))
   }
 
   at(index: number): T | undefined {
     if (index < 0 || index >= this.data.length) {
-      return undefined
+      return
     }
 
     return this.data[(index + this.index) % this.data.length]
